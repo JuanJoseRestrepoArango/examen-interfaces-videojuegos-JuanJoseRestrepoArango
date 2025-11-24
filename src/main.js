@@ -1,7 +1,8 @@
 import{getJuegoService} from "./services/getJuegoService.js"
+import{getValoracionService} from "./services/getValoracionService.js"
 
 const btnId = document.getElementById("btn-id");
-
+const btnIdValoracion = document.getElementById("btn-id-valoracion");
 const salida = document.getElementById("salida")
 
 const getIdFromButton = ()=>{
@@ -41,6 +42,29 @@ const mostrarJuegoThenCatch = (id) => {
 }
 
 
+const mostrarJuegoValoracionAll = (id) => {
+    console.log("Entre a mostrar JuegoValoracionAll")
+    Promise.all([getJuegoService(id),getValoracionService(id)]).then(([juego,puntuacion])=>{
+        console.log("Entro a then")
+        salida.innerHTML = ""
+        const pTitulo = document.createElement('P')
+        pTitulo.textContent = `-Titulo: ${juego.titulo}`
+        salida.appendChild(pTitulo)
+        const pPuntuacion = document.createElement('P')
+        pPuntuacion.textContent = `-Puntuación: ${puntuacion}/10`
+        salida.appendChild(pPuntuacion)
+        console.log(juego ," Juego")
+        console.log(puntuacion ," puntuacion")
+
+    }).catch((error)=>{
+        console.log("Entro a catch")
+        console.error(error, " Error")
+        salida.innerHTML = ""
+        salida.textContent = error instanceof Error ? error.message : "Error Inesperado"
+    })
+}
+
+
 
 btnId.addEventListener(("click") ,() => {
     console.log("Click en botón por ID")
@@ -48,6 +72,18 @@ btnId.addEventListener(("click") ,() => {
         const id = getIdFromButton()
         if(id !== undefined){
             mostrarJuegoThenCatch(id)
+        }
+    }catch(error){
+        result.textContent = error instanceof Error ? error.message : "Error Inesperado"
+    }
+} )
+
+btnIdValoracion.addEventListener(("click") ,() => {
+    console.log("Click en botón por ID para  busqueda con promise.all")
+    try{
+        const id = getIdFromButton()
+        if(id !== undefined){
+            mostrarJuegoValoracionAll(id)
         }
     }catch(error){
         result.textContent = error instanceof Error ? error.message : "Error Inesperado"
