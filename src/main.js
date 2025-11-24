@@ -1,8 +1,10 @@
 import{getJuegoService} from "./services/getJuegoService.js"
 import{getValoracionService} from "./services/getValoracionService.js"
+import{getJuegosPorPlataformaService} from "./services/getJuegosPorPlataformaService.js"
 
 const btnId = document.getElementById("btn-id");
 const btnIdValoracion = document.getElementById("btn-id-valoracion");
+const btnPlataforma = document.getElementById("btn-plataforma");
 const salida = document.getElementById("salida")
 
 const getIdFromButton = ()=>{
@@ -14,6 +16,17 @@ const getIdFromButton = ()=>{
         return 
     }
     return id
+}
+
+const getPlataformaFromButton = () => {
+    console.log("Entre a getPlataformaFromButton")
+    const input = prompt("Ingrese la plataforma de los juegos(PC, PlayStation, Xbox o Nintendo Switch:): ")
+    const plataforma = input?.trim()
+    if(!plataforma || plataforma.length === 0){
+        alert("Debe ingresar una plataforma")
+        return 
+    }
+    return plataforma
 }
 
 const mostrarJuegoThenCatch = (id) => {
@@ -64,6 +77,30 @@ const mostrarJuegoValoracionAll = (id) => {
     })
 }
 
+async function mostrarJuegosPorPlataforma(plataforma) {
+    try {
+        const resultados = await getJuegosPorPlataformaService(plataforma);
+        console.table(resultados)
+        salida.innerHTML = ""
+        if(resultados.length> 0){
+
+            resultados.forEach(juego => {
+                const p = document.createElement("p")
+                p.textContent = `-[ ${juego.id}]  ${juego.titulo}`
+                salida.appendChild(p)
+                
+            });
+        }else{
+            throw "No se encontro juego para esa plataforma"
+        }
+    } catch (error) {
+        console.log("Entro a catch")
+        console.error(error, " Error")
+        salida.innerHTML = ""
+        salida.textContent = error instanceof Error ? error.message : "Error Inesperado"
+    }
+}    
+
 
 
 btnId.addEventListener(("click") ,() => {
@@ -74,7 +111,7 @@ btnId.addEventListener(("click") ,() => {
             mostrarJuegoThenCatch(id)
         }
     }catch(error){
-        result.textContent = error instanceof Error ? error.message : "Error Inesperado"
+        salida.textContent = error instanceof Error ? error.message : "Error Inesperado"
     }
 } )
 
@@ -86,7 +123,19 @@ btnIdValoracion.addEventListener(("click") ,() => {
             mostrarJuegoValoracionAll(id)
         }
     }catch(error){
-        result.textContent = error instanceof Error ? error.message : "Error Inesperado"
+        salida.textContent = error instanceof Error ? error.message : "Error Inesperado"
     }
 } )
+
+btnPlataforma.addEventListener("click",() => {
+    console.log("clieck en boton para buscar juegos por plataforma")
+    try {
+        const plataforma = getPlataformaFromButton()
+        if(plataforma && plataforma.length > 0){
+            mostrarJuegosPorPlataforma(plataforma)
+        }
+    } catch(error){
+        salida.textContent = error instanceof Error ? error.message : "Error Inesperado"
+    }
+})
 
